@@ -25,28 +25,39 @@ function detectarTipodeOperacpion( tipodeOperacionentrada)
 function mainPrincipal()
 {
    
-    const CadenadeEntradamain = 'sub x12,x23,x22'
+    const CadenadeEntradamain = "sub x23,x24,x25";
     let [tipodeOperacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
     console.log(CadenadeEntradamain);
+    console.log(tipodeOperacion);
     let direccionesporseparadoRecibidas = quitarlasX(direcciones);
     let rs1 = convertToBinary(direccionesporseparadoRecibidas[0])
-    console.log(rs1);
     let rs2 = convertToBinary(direccionesporseparadoRecibidas[1]);
-    console.log(rs2);
     let rd = convertToBinary(direccionesporseparadoRecibidas[2]);
-    console.log(rd);
-    asignarOpcode(tipodeOperacion);
-    asignarfunc7(tipodeOperacion);
+    let opcode = asignarOpcode(tipodeOperacion);
+    let func7 = asignarfunc7(tipodeOperacion);
+    let func3 =asignarfunc3(tipodeOperacion);
+
+    const risc_v_binario = func7 + rs2 + rs1 + func3 + rd + opcode;
+    console.log(risc_v_binario);
+    let risc_v_hexadecimal = convertidorHexadecimal(risc_v_binario);
+    console.log('0x',risc_v_hexadecimal);
+    
+}
+ 
+
+function convertidorHexadecimal(valorDeEntrada)
+{
+    return Number(parseInt(valorDeEntrada,2)).toString(16);
 }
 
 function quitarlasX(direccionesRecibidas)
 {
     let auxDirecciones = direccionesRecibidas.split('x');
-    //console.log(auxDirecciones);
+    console.log(auxDirecciones);
     let direccionessinX = auxDirecciones.join('');
     let direccionesporSeparado = direccionessinX.split(',',3); //solo se pueden maximo 3 registros
-    //console.log(direccionessinX);
-    //console.log(direccionesporSeparado);
+    console.log(direccionessinX);
+    console.log(direccionesporSeparado);
     return direccionesporSeparado;
 }
 
@@ -57,7 +68,17 @@ function asignarOpcode (tipodeoperacionRecibida)
         opcode = '0110011';
     else if(tipodeoperacionRecibida == 'add')
         opcode = '0110011';
-    console.log(opcode);
+    
+    return opcode;
+}
+function asignarfunc3(tipodeOperacionentrada)
+{
+    let func3;
+    if(tipodeOperacionentrada == 'sub')
+        func3 = '000';
+    else if(tipodeOperacionentrada == 'add')
+       func3 = '000';
+    return func3;
 }
 
 function asignarfunc7(tipodeoperacionRecibida)
@@ -70,9 +91,9 @@ function asignarfunc7(tipodeoperacionRecibida)
         func7 = '0100000';
     
 
-    console.log(func7);
-
+    return func7;
 }
+
 function convertToBinary(x) 
 {
     let bin = 0;
@@ -90,4 +111,11 @@ function convertToBinary(x)
     }
     let binario = String(bin).padStart(5, '0');
     return binario;
+}
+
+function obtenerCodigo()
+{
+    let codigoRecibido = " ";
+    codigoRecibido = document.getElementById('codigoensamblador').value;
+    mainPrincipal(codigoRecibido);
 }
