@@ -1,0 +1,64 @@
+.form-control
+{
+    background-color: transparent;
+    width: 200px;
+    height: 220px;
+    perspective: 1000px;
+    color: black;
+    margin: 0 10px;
+}
+.salida
+{
+    color: black;
+    margin: 0 40px;
+}
+body{
+    margin: 0 auto;
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    font-family: "Roboto";
+    background-color: #95A5A6;
+}
+button
+{
+    font-size: 24px;
+    color: black;
+    background-color: transparent;
+    border: 1px solid black;
+    border-radius: 48px;
+    padding: 12px 32px;
+    transition: .5s;
+    margin: 0 20px;
+}
+button:hover
+{
+    color: white;
+}
+button::before
+{
+    content: "";
+    position: absolute;
+    height: 62px;
+    width: 150px;
+    z-index: -1;
+    border-radius: 48px;
+    background-color: #5D6D7E;
+    transform: translate(-24px, -8px);
+    transition: 0.4s;
+    margin: 0 10px;
+}
+button:hover::before
+{
+    background-color: #AF7AC5;
+    transform: translate(-33px,-13px);
+}
+.borrar
+{
+    display: inline-block;
+    margin: 0 10px;
+}
