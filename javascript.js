@@ -24,7 +24,6 @@ function detectarTipodeOperacpion( tipodeOperacionentrada)
 function mainPrincipal(CadenadeEntradamain)
 {
     let tipodeOperacionGlobal = 0;
-    //const CadenadeEntradamain = "sub x23,x24,x25";
     let [tipodeOperacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
     tipodeOperacionGlobal = detectarTipodeOperacpion(tipodeOperacion);
     console.log(tipodeOperacionGlobal);
@@ -44,7 +43,7 @@ function mainPrincipal(CadenadeEntradamain)
             let func12 = convertToBinary(aux1);
             let binario = String(func12).padStart(12 , '0');
             const risc_v_binario = binario + rs1 + func3 + rd + opcode;
-            escribir(risc_v_binario);
+            escribir(risc_v_binario, CadenadeEntradamain);
         }else if (tipodeOperacion == 'sd')
         {
             let opcode = '0100011';
@@ -56,7 +55,7 @@ function mainPrincipal(CadenadeEntradamain)
             console.log(binario.slice(7,12));
             const risc_v_binario = binario.toString().slice(0,7) + rd + rs1 + func3 + String(binario).slice(7,12) + opcode;
             console.log(risc_v_binario);
-            escribir(risc_v_binario);
+            escribir(risc_v_binario, CadenadeEntradamain);
         }
     }
     else{
@@ -70,15 +69,34 @@ function mainPrincipal(CadenadeEntradamain)
         const risc_v_binario = func7 + rs2 + rs1 + func3 + rd + opcode;
         console.log(risc_v_binario);
         let risc_v_hexadecimal = convertidorHexadecimal(risc_v_binario);
-        escribir(risc_v_binario);   
+        escribir(risc_v_binario, CadenadeEntradamain);   
     }
 
     
 }
- 
-function escribir(riscv)
+
+function partiren4(riscv)
 {
-    document.getElementById('salida').innerHTML = "\ <br> "+riscv;
+    let aux = convertidorHexadecimal(riscv.toString().slice(0,4));
+    let aux2 = convertidorHexadecimal(riscv.toString().slice(4,8));
+    let aux3 = convertidorHexadecimal( riscv.toString().slice(8,12));
+    console.log(aux,aux2,aux3);
+    let aux4 = convertidorHexadecimal(riscv.toString().slice(12,16));
+    let aux5 = convertidorHexadecimal(riscv.toString().slice(16,20));
+    let aux6 = convertidorHexadecimal(riscv.toString().slice(20,24));
+    let aux7 = convertidorHexadecimal(riscv.toString().slice(24,28));
+    let aux8 = convertidorHexadecimal(riscv.toString().slice(28,33));
+    console.log(aux4, aux5, aux6, aux7, aux8);
+    const riscv_v_hexadecimal = aux + aux2 + aux3 + aux4 + aux5 + aux6 + aux7 + aux8;
+    console.log(riscv_v_hexadecimal);
+    return riscv_v_hexadecimal;
+}
+
+function escribir(riscv, CadenadeEntrada)
+{
+    console.log(riscv);
+     let riscv_v_hexadecimal = partiren4(riscv);
+    document.getElementById('salida').innerHTML = "<= x\""+riscv_v_hexadecimal+"\" --"+CadenadeEntrada;
 }
 
 function convertidorHexadecimal(valorDeEntrada)
