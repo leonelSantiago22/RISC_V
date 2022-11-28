@@ -21,8 +21,17 @@ function detectarTipodeOperacpion( tipodeOperacionentrada)
         return 2;
     return -1;
 }
+function probarRegex(CadenadeEntradamain)
+{
+    var regEx = /(add|sd|ld|sub) ((x)([0-9]*)),(([0-9]*|x[0-9]*))(\(x[0-9]*\)|,x[0-9]*)/.test(CadenadeEntradamain);
+    console.log(regEx);
+    return regEx;
+}
+
 function mainPrincipal(CadenadeEntradamain)
 {
+    let regEx =probarRegex(CadenadeEntradamain);
+    if(regEx === true){
     let tipodeOperacionGlobal = 0;
     let [tipodeOperacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
     tipodeOperacionGlobal = detectarTipodeOperacpion(tipodeOperacion);
@@ -71,7 +80,9 @@ function mainPrincipal(CadenadeEntradamain)
         let risc_v_hexadecimal = convertidorHexadecimal(risc_v_binario);
         escribir(risc_v_binario, CadenadeEntradamain);   
     }
-
+    }else{
+        escribir('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'Error verifica la cadena elimina posibles espacios en blanco');
+    }
     
 }
 
