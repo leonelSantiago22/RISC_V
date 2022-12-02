@@ -1,3 +1,4 @@
+//const { query } = require("express");
 
 
 
@@ -23,7 +24,7 @@ function detectarTipodeOperacpion( tipodeOperacionentrada)
 }
 function probarRegex(CadenadeEntradamain)
 {
-    var regEx = /(add|sd|ld|sub) ((x)([0-9]*)),(([0-9]*|x[0-9]*))(\(x[0-9]*\)|,x[0-9]*)/.test(CadenadeEntradamain);
+    var regEx =     /(add|sd|ld|sub) ((x)([0-9]*)),(([0-9]*|x[0-9]*))(\(x[0-9]*\)|,x[0-9]*)/.test(CadenadeEntradamain);
     console.log(regEx);
     return regEx;
 }
@@ -106,8 +107,13 @@ function partiren4(riscv)
 function escribir(riscv, CadenadeEntrada)
 {
     console.log(riscv);
-     let riscv_v_hexadecimal = partiren4(riscv);
-    document.getElementById('salida').innerHTML = "<= x\""+riscv_v_hexadecimal+"\" --"+CadenadeEntrada;
+    let riscv_v_hexadecimal = partiren4(riscv);
+    //let div = document.querySelector('salida');
+    //aux = div.textContent;
+    let aux = document.getElementById('salida');
+    let parrafoHTML = document.createElement('p');
+    parrafoHTML.innerText = '<= x"'+riscv_v_hexadecimal+'"--'+CadenadeEntrada;
+    aux.appendChild(parrafoHTML);
 }
 
 function convertidorHexadecimal(valorDeEntrada)
@@ -200,7 +206,20 @@ function obtenerCodigo()
 {
     let codigoRecibido = "";
     codigoRecibido = document.getElementById('codigoensamblador').value;
-    mainPrincipal(codigoRecibido);
+    separarlineasdecodigo(codigoRecibido);
+    //mainPrincipal(codigoRecibido);
+}
+
+function separarlineasdecodigo(codigoRecibido)
+{
+    let aux = codigoRecibido.split("\n");
+    console.log(aux);
+    console.log(aux.length);
+    for (let i = 0; i < aux.length; i++) {
+        const element = aux[i];
+        console.log(element);
+        mainPrincipal(element);
+    }
 }
 
 function borrar()
@@ -208,3 +227,4 @@ function borrar()
     document.getElementById('codigoensamblador').value = "";
     document.getElementById('salida').innerHTML = " "; 
 }
+//00000000000001010011010010000011
