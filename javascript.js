@@ -253,6 +253,7 @@ function quitarlasXparaoperacionestipoparaBranchs(direccionesRecibidas)
     let rs2 = convertToBinary(aux2.join(''));
     console.log(rs2);
     let posicion = 0;
+    let auxComplementoa2;
     if(isNaN(direccionesporSeparado[2])){ //verificamos si es una letra o un numero
     for (let i = 0; i < etiquetaArreglo.length; i++) 
     {
@@ -262,17 +263,38 @@ function quitarlasXparaoperacionestipoparaBranchs(direccionesRecibidas)
             let pos = 0;
             if(contador>i){
                 posicion = pos - contador;
+                auxComplementoa2 = posicion*(-1);
+                if(auxComplementoa2<16)
+                {
+                    auxComplementoa2 =16- auxComplementoa2;
+                }else{
+                    auxComplementoa2 = 32-auxComplementoa2;
+                }
             }else{
                 posicion = pos + (i -contador);
+                auxComplementoa2 = posicion;
             }
         }
      }
     }else
     {
         posicion = direccionesporSeparado[2];
+        if(posicion<0)
+        {
+            auxComplementoa2 = posicion*(-1);
+                if(auxComplementoa2<16)
+                {
+                    auxComplementoa2 =16- auxComplementoa2;
+                }else{
+                    auxComplementoa2 = 32-auxComplementoa2;
+                }
+        }else{
+        auxComplementoa2 = posicion;
+        }
     }
-    console.log('posicion:',posicion);
-    let inmediato =convertoBinary2(posicion);
+     
+    console.log('posicion:',auxComplementoa2);
+    let inmediato =convertoBinary2(auxComplementoa2);
 
     if(posicion>=0)
     {
