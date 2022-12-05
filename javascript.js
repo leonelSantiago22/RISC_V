@@ -1,7 +1,5 @@
-//const { query } = require("express");
-
-
-
+const etiquetaArreglo = [];
+let contador = 0;
 //let diccionariodeoperaciones = ['ld', 'add', 'sub', 'sd'];
 function divisionDelaFrases(CadenadeEntrada)
 {
@@ -20,27 +18,60 @@ function detectarTipodeOperacpion( tipodeOperacionentrada)
         return 2;
     else if(tipodeOperacionentrada == 'sd')
         return 2;
+    else if (tipodeOperacionentrada == 'jal')
+        return 3;
+    else if (tipodeOperacionentrada == 'jalr')
+        return 2;
+    else if (tipodeOperacionentrada == 'bne')
+        return 5;
+    else if (tipodeOperacionentrada == 'beq')
+        return 5;
     return -1;
 }
 function probarRegex(CadenadeEntradamain)
 {
-    var regEx =     /(add|sd|ld|sub) ((x)([0-9]*)),(([0-9]*|x[0-9]*))(\(x[0-9]*\)|,x[0-9]*)/.test(CadenadeEntradamain);
+    var regEx =     /(add|sd|ld|sub|jalr|bne|beq) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,[a-z]*)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\$)/.test(CadenadeEntradamain);
     console.log(regEx);
     return regEx;
 }
 
+function probarRegex2(CadenadeEntradamain)
+{   
+    let etiqueta, operacion, direcciones;
+    let regEx;
+    if((/([a-z]*): (add|sd|ld|sub|jalr|bne|beq|jal) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,sum)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\n)/.test(CadenadeEntradamain)) == true)
+     {
+        regEx = true;
+        [etiqueta, operacion, direcciones] = CadenadeEntradamain.split(' ');
+        console.log(etiqueta);
+    }else if ((/(add|sd|ld|sub|jalr|bne|beq) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,[a-z]*)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\$)/.test(CadenadeEntradamain)) == true)
+     {
+        regEx = true;
+        [operacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
+    }else{
+        [operacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
+        regEx = false;
+    }
+    console.log(regEx);
+    console.log(operacion);
+    console.log(direcciones);
+    return [regEx, operacion, direcciones]
+}
+
 function mainPrincipal(CadenadeEntradamain)
 {
-    let regEx =probarRegex(CadenadeEntradamain);
-    if(regEx === true){
+    let [regEx,tipodeOperacion, direcciones] =probarRegex2(CadenadeEntradamain);
     let tipodeOperacionGlobal = 0;
-    let [tipodeOperacion, direcciones] = divisionDelaFrases(CadenadeEntradamain);
+    console.log(regEx, tipodeOperacion, direcciones);
     tipodeOperacionGlobal = detectarTipodeOperacpion(tipodeOperacion);
+    console.log(tipodeOperacionGlobal);
+    if(regEx == true){ //probamos si la linea de codigo es o no verdadera
+    console.log(etiquetaArreglo);
     console.log(tipodeOperacionGlobal);
     console.log(CadenadeEntradamain);
     console.log(tipodeOperacion);
     let direccionesporseparadoRecibidas, aux1,aux2;
-    if (tipodeOperacionGlobal!=1)
+    if (tipodeOperacionGlobal==2)
     {
         [direccionesporseparadoRecibidas, aux1, aux2] = quitarlasXparaoperacionestipo2(direcciones)
         console.log(direccionesporseparadoRecibidas,aux1,aux2);
@@ -66,9 +97,18 @@ function mainPrincipal(CadenadeEntradamain)
             const risc_v_binario = binario.toString().slice(0,7) + rd + rs1 + func3 + String(binario).slice(7,12) + opcode;
             console.log(risc_v_binario);
             escribir(risc_v_binario, CadenadeEntradamain);
+        }else if(tipodeOperacion== 'jalr')
+        {
+            let opcode = asignarOpcode(tipodeOperacion);
+            let func3 = '000';
+            let immediato = convertToBinary(aux1);
+            let inmediato = String(immediato).padStart(12, '0');
+            const risc_v_binario = inmediato + rs1 + func3 + rd + opcode;
+            console.log(risc_v_binario);
+            escribir(risc_v_binario, CadenadeEntradamain);
         }
     }
-    else{
+    else if(tipodeOperacionGlobal == 1){
         direccionesporseparadoRecibidas = quitarlasX(direcciones);
         let rs1 = convertToBinary(direccionesporseparadoRecibidas[0])
         let rs2 = convertToBinary(direccionesporseparadoRecibidas[1]);
@@ -76,11 +116,46 @@ function mainPrincipal(CadenadeEntradamain)
         let opcode = asignarOpcode(tipodeOperacion);
         let func7 = asignarfunc7(tipodeOperacion);
         let func3 =asignarfunc3(tipodeOperacion);
-        const risc_v_binario = func7 + rs2 + rs1 + func3 + rd + opcode;
+        console.log(rs1, rs2, rd);
+        const risc_v_binario = func7 + rd + rs2 + func3 + rs1 + opcode;
         console.log(risc_v_binario);
         let risc_v_hexadecimal = convertidorHexadecimal(risc_v_binario);
         escribir(risc_v_binario, CadenadeEntradamain);   
+     }
+     else if(tipodeOperacionGlobal == 5)
+     {
+        let opcode = asignarOpcode(tipodeOperacion);
+        let func3;
+        if(tipodeOperacion == 'bne')
+        {
+            func3 = '001';
+        }else
+        {
+            func3 = '000';
+        }
+        let[rs1,rs2, inmediato] = quitarlasXparaoperacionestipoparaBranchs(direcciones);
+        console.log(inmediato.slice(0,1));
+        console.log(inmediato.slice(1,7));
+        console.log(rs2);
+        console.log(rs1);
+        console.log(func3);
+        console.log(inmediato.slice(7,11));
+        console.log(inmediato.slice(0,1));
+        const risc_v_binario = inmediato.slice(0,1) + inmediato.slice(1,7) + rs2 + rs1 + func3 + inmediato.slice(7,11) + inmediato.slice(0,1) + opcode;
+        escribir(risc_v_binario, CadenadeEntradamain);
+     }
     }
+    else if(tipodeOperacionGlobal == 3){
+
+        let [rd,inmediato] = quitarlasXparaoperacionestipoparaJal(direcciones);
+        let opcode = asignarOpcode(tipodeOperacion);
+        console.log('pos',inmediato.toString().slice(1,2));
+        console.log('pos2',inmediato.toString().slice(9,20));
+        console.log('pos3',inmediato.toString().slice(10,11));
+        console.log('pos4',inmediato.toString().slice(2,10));
+        const risc_v_binario = inmediato.toString().slice(0,1) + inmediato.toString().slice(9,20) + inmediato.toString().slice(2,10)  + rd+ opcode;
+        console.log(risc_v_binario);
+        escribir(risc_v_binario, CadenadeEntradamain);
     }else{
         escribir('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'Error verifica la cadena elimina posibles espacios en blanco');
     }
@@ -106,13 +181,14 @@ function partiren4(riscv)
 
 function escribir(riscv, CadenadeEntrada)
 {
+
     console.log(riscv);
     let riscv_v_hexadecimal = partiren4(riscv);
     //let div = document.querySelector('salida');
     //aux = div.textContent;
     let aux = document.getElementById('salida');
     let parrafoHTML = document.createElement('p');
-    parrafoHTML.innerText = '<= x"'+riscv_v_hexadecimal+'"--'+CadenadeEntrada;
+    parrafoHTML.innerText = 'x"'+riscv_v_hexadecimal+'"--'+CadenadeEntrada;
     aux.appendChild(parrafoHTML);
 }
 
@@ -121,6 +197,107 @@ function convertidorHexadecimal(valorDeEntrada)
     return Number(parseInt(valorDeEntrada,2)).toString(16);
 }
 
+function quitarlasXparaoperacionestipoparaJal(direccionesRecibidas)
+{
+    console.log("entro a la funcion de jal");
+    console.log(direccionesRecibidas);
+    let direccionesporSeparado = direccionesRecibidas.split(',');
+    console.log(direccionesporSeparado);
+    let aux = direccionesporSeparado[0].split('x');
+    console.log(aux.join(''));
+    let rd = convertToBinary(aux.join(''));
+    console.log(rd);
+    let posicion = 0;
+    if(isNaN(direccionesporSeparado[1])){ //verificamos si es una letra o un numero
+    for (let i = 0; i < etiquetaArreglo.length; i++) 
+    {
+        if(direccionesporSeparado[1] == etiquetaArreglo[i])
+        {
+            console.log('se encontro');
+            let pos = 0;
+            if(contador>i){
+                posicion = pos - contador;
+            }else{
+                posicion = pos + (i -contador);
+            }
+        }
+     }
+    }else
+    {
+        posicion = direccionesporSeparado[1];
+    }
+    console.log('posicion:',posicion);
+    let inmediato =convertoBinary2(posicion);
+    console.log(rd, inmediato);
+    if(posicion>=0)
+    {
+        inmediato = String(inmediato).padStart(20, '0');
+    }else{
+        inmediato = String(inmediato).padStart(20, '1');
+    }
+    console.log(rd, inmediato);
+    return [rd, inmediato];
+}   
+function quitarlasXparaoperacionestipoparaBranchs(direccionesRecibidas)
+{
+    console.log("entro a la funcion de jal");
+    console.log(direccionesRecibidas);
+    let direccionesporSeparado = direccionesRecibidas.split(',');
+    console.log(direccionesporSeparado);
+    let aux = direccionesporSeparado[0].split('x');
+    console.log(aux.join(''));
+    let rs1 = convertToBinary(aux.join(''));
+    console.log(rs1);
+    let aux2 = direccionesporSeparado[1].split('x');
+    console.log(aux2.join(''));
+    let rs2 = convertToBinary(aux2.join(''));
+    console.log(rs2);
+    let posicion = 0;
+    if(isNaN(direccionesporSeparado[2])){ //verificamos si es una letra o un numero
+    for (let i = 0; i < etiquetaArreglo.length; i++) 
+    {
+        if(direccionesporSeparado[2] == etiquetaArreglo[i])
+        {
+            console.log('se encontro');
+            let pos = 0;
+            if(contador>i){
+                posicion = pos - contador;
+            }else{
+                posicion = pos + (i -contador);
+            }
+        }
+     }
+    }else
+    {
+        posicion = direccionesporSeparado[2];
+    }
+    console.log('posicion:',posicion);
+    let inmediato =convertoBinary2(posicion);
+
+    if(posicion>=0)
+    {
+        inmediato = String(inmediato).padStart(12, '0');
+    }else{
+        inmediato = String(inmediato).padStart(12, '1');
+    }
+    console.log(rs1,rs2,inmediato);
+    return[rs1,rs2,inmediato];
+}
+//permite conocer si es un numero positivo o negativo
+function convertoBinary2(dec)
+{
+    if(dec > 0) {
+        return Number(parseInt(dec,10)).toString(2);
+    }
+    else {
+        //make the number positive
+        dec = Math.abs(dec);
+        //get the first compliment
+        let res = dec ^ parseInt((new Array(dec.toString(2).length+1)).join("1"),2);
+        //get the second complimet
+        return (res+1).toString(2);
+    }
+}
 function quitarlasXparaoperacionestipo2(direccionesRecibidas)
 {
     let auxDirecciones = direccionesRecibidas.split('x');
@@ -159,10 +336,19 @@ function asignarOpcode (tipodeoperacionRecibida)
         opcode = '0000011';
     else if(tipodeoperacionRecibida== 'sd')
         opcode = '0100011';
+    else if(tipodeoperacionRecibida == 'jal')
+        opcode = '1101111';
+    else if(tipodeoperacionRecibida == 'bne')
+        opcode = '1100011'
+    else if(tipodeoperacionRecibida == 'beq')
+        opcode = '1100011';
+    else if(tipodeoperacionRecibida == 'jalr')
+        opcode = '1100111';
     else
         opcode = 'xxxxxxx';
     return opcode;
 }
+
 function asignarfunc3(tipodeOperacionentrada)
 {
     let func3;
@@ -204,19 +390,49 @@ function convertToBinary(x)
 
 function obtenerCodigo()
 {
+    while(etiquetaArreglo.length > 0)
+        etiquetaArreglo.pop(); 
+    document.getElementById('salida').innerHTML = " "; 
     let codigoRecibido = "";
     codigoRecibido = document.getElementById('codigoensamblador').value;
+    let aux = codigoRecibido;
+    meterEtiquetasIterativo(aux);
     separarlineasdecodigo(codigoRecibido);
     //mainPrincipal(codigoRecibido);
 }
+function meterEtiquetasIterativo(codigoRecibido)
+{
+    let aux = codigoRecibido.split("\n");
+    //console.log(aux);
+    //console.log(aux.length);
+    for ( let i = 0; i < aux.length; i++) {
+        const element = aux[i];
+        meterEtiquetas(element);
+    }
+}
 
+function meterEtiquetas(CadenadeEntradamain)
+{
+    let etiqueta, operacion, direcciones;
+    if((/([a-z]*): (add|sd|ld|sub|jalr|bne|beq|jal) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,sum)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\n)/.test(CadenadeEntradamain)) == true)
+     {
+        [etiqueta, operacion, direcciones] = CadenadeEntradamain.split(' ');
+        const aux = etiqueta.split(':');
+        const aux2 = aux.join('');
+        etiquetaArreglo.push(aux2);
+        console.log(operacion, direcciones);
+    }else{
+        etiquetaArreglo.push(" ");
+    }
+    
+}
 function separarlineasdecodigo(codigoRecibido)
 {
     let aux = codigoRecibido.split("\n");
-    console.log(aux);
-    console.log(aux.length);
-    for (let i = 0; i < aux.length; i++) {
-        const element = aux[i];
+    //console.log(aux);
+    //console.log(aux.length);
+    for ( contador = 0; contador < aux.length; contador++) {
+        const element = aux[contador];
         console.log(element);
         mainPrincipal(element);
     }
@@ -226,5 +442,11 @@ function borrar()
 {
     document.getElementById('codigoensamblador').value = "";
     document.getElementById('salida').innerHTML = " "; 
+    while(etiquetaArreglo.length > 0)
+        etiquetaArreglo.pop(); 
+    
 }
 //00000000000001010011010010000011
+//
+//([a-z]*): (add|sd|ld|sub|jalr|bne|beq|jal) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,sum)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\n)
+//(add|sd|ld|sub|jalr|bne|beq|jal) ((x[0-9]*))(,[0-9]*|,x[0-9]*|,sum)((\(x[0-9]*\)|,x[0-9]*)|,[a-z]*|,[0-9]*|\n)
