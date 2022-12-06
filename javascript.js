@@ -83,6 +83,7 @@ function mainPrincipal(CadenadeEntradamain)
             let func3 = '011';
             let func12 = convertToBinary(aux1);
             let binario = String(func12).padStart(12 , '0');
+            console.log(binario);
             const risc_v_binario = binario + rs1 + func3 + rd + opcode;
             escribir(risc_v_binario, CadenadeEntradamain);
         }else if (tipodeOperacion == 'sd')
@@ -135,13 +136,14 @@ function mainPrincipal(CadenadeEntradamain)
         }
         let[rs1,rs2, inmediato] = quitarlasXparaoperacionestipoparaBranchs(direcciones);
         console.log(inmediato.slice(0,1));
-        console.log(inmediato.slice(1,7));
+        console.log(inmediato.slice(0,6));
         console.log(rs2);
         console.log(rs1);
         console.log(func3);
         console.log(inmediato.slice(7,11));
-        console.log(inmediato.slice(0,1));
-        const risc_v_binario = inmediato.slice(0,1) + inmediato.slice(1,7) + rs2 + rs1 + func3 + inmediato.slice(7,11) + inmediato.slice(0,1) + opcode;
+        console.log(inmediato.slice(11,12));
+        console.log('cambio');
+        const risc_v_binario = inmediato.slice(0,1) + inmediato.slice(1,7) + rs2 + rs1 + func3 + inmediato.slice(7,11) + inmediato.slice(11,12) + opcode;
         escribir(risc_v_binario, CadenadeEntradamain);
      }
     }
@@ -153,7 +155,7 @@ function mainPrincipal(CadenadeEntradamain)
         console.log('pos2',inmediato.toString().slice(9,20));
         console.log('pos3',inmediato.toString().slice(10,11));
         console.log('pos4',inmediato.toString().slice(2,10));
-        const risc_v_binario = inmediato.toString().slice(0,1) + inmediato.toString().slice(9,20) + inmediato.toString().slice(2,10)  + rd+ opcode;
+        const risc_v_binario = inmediato.toString().slice(0,1) + inmediato.toString().slice(2,10)+ inmediato.toString().slice(9,20)   + rd+ opcode;
         console.log(risc_v_binario);
         escribir(risc_v_binario, CadenadeEntradamain);
     }else{
@@ -308,7 +310,7 @@ function quitarlasXparaoperacionestipoparaBranchs(direccionesRecibidas)
 //permite conocer si es un numero positivo o negativo
 function convertoBinary2(dec)
 {
-    if(dec > 0) {
+    if(dec >= 0) {
         return Number(parseInt(dec,10)).toString(2);
     }
     else {
