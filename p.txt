@@ -1,6 +1,21 @@
-add x10,x5,x19
-sd x10,20(x5)
-ls x5,10(x3)
-sub x10,x5,x15
-
-(add|sd|ls|sub) (x)([0-9]*),([0-9]*|x)*(\(x[0-9]*\)|,x[0-9]*)
+inicio: add x10,x0,x26
+jal x1,fibo
+load: ld x16,18(x0)
+fibo: beq x0,x0,inicio
+beq x10,x0,13
+bne x10,x12,load2
+jal x2,13
+sd x0,10(x0)
+sd x11,18(x0)
+beq x10,x11,load
+ld x13,10(x0)
+ld x14,18(x0)
+add x15,x14,x13
+load2: sd x14,10(x0)
+sd x15,18(x0)
+sub x10,x10,x11
+jal x2,-7(x0)
+add x16,x8,x31 
+jalr x2,4(x1)
+add x16,x0,x30
+jalr x2,4(x1)
